@@ -5,8 +5,10 @@ jobs:
     docker:
       - image: circleci/python:3.6.4
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "6c:d3:19:67:41:7d:cd:91:0c:9b:71:00:38:05:55:e0"
       - checkout
-      # Download and cache dependencies
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "requirements.txt" }}
@@ -21,13 +23,12 @@ jobs:
           paths:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
-
       - run:
           name: Update data
           command: |
             . venv/bin/activate
-            python mal_synopsis.py ati703 anime
-            python mal_synopsis.py ati703 manga
+            python mal_synopsis.py ati703 https://dl.dropboxusercontent.com/s/u30l2xgi4fg21zs/komolyabb.css
+            python mal_synopsis.py ati703 https://dl.dropboxusercontent.com/s/rrc8b670cpi5rgx/manga.css
       - run:
           name: Commit data back to Github
           command: |
@@ -37,6 +38,7 @@ jobs:
             git pull origin master
             git commit -am "[skip ci] Updating Data ${DATE_TODAY}" --allow-empty
             git push origin master
+
 workflows:
   daily_data_update:
     triggers:
