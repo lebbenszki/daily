@@ -13,8 +13,8 @@ def Getfromold(file, empty, ok, newfile):
             for i in line[57:66]:
                 if i.isdigit():
                     str += i
-                else:
-                    if '{content: \'None\'; }' in line:
+                elif str != "":
+                    if any(word in line for word in ["{content: \'None\'; }", "{content: \'\'; }"]):
                         empty.add(int(str))
                     else:
                         ok.add(int(str))
@@ -24,7 +24,6 @@ def Getfromold(file, empty, ok, newfile):
 def Getlist(type, name, file = "None"):
     ok, empty = set(), set()
     newfile = open("new_" + type + ".css", "w", encoding = "utf-8")
-    newfile.write("\n")
     user_stats = jikan.user(username = name, request = "profile")
     time.sleep(10)
     entry_number = user_stats[type + "_stats"]["total_entries"]
@@ -49,7 +48,7 @@ def Getlist(type, name, file = "None"):
             else:
                 entity = jikan.anime(i)
             time.sleep(1)
-            newfile.write(".list-table .list-table-data .data.image a[href*=\"/" + type + "/" + str(entity["mal_id"]) + "/\"]:after {content: \'" + str(entity["synopsis"]).replace('"', '\\"').replace("'","\\'") + "\'; }\n")
+            newfile.write("\n.list-table .list-table-data .data.image a[href*=\"/" + type + "/" + str(entity["mal_id"]) + "/\"]:after {content: \'" + str(entity["synopsis"]).replace('"', '\\"').replace("'","\\'") + "\'; }")
             remaining = remaining - 1
             print("Remaining: ", remaining)
         except Exception as e:
