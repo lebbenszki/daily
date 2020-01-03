@@ -26,7 +26,8 @@ jobs:
           name: Update data
           command: |
             . venv/bin/activate
-            python scripts/update_data.py
+            python mal_synopsis.py ati703 anime
+            python mal_synopsis.py ati703 manga
       - run:
           name: Commit data back to Github
           command: |
@@ -55,4 +56,3 @@ workflows:
             branches:
               only:
                 - master
-                
