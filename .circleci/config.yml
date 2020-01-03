@@ -27,8 +27,8 @@ jobs:
           name: Update data
           command: |
             . venv/bin/activate
-            python mal_synopsis.py ati703 anime https://dl.dropboxusercontent.com/s/u30l2xgi4fg21zs/komolyabb.css
-            python mal_synopsis.py ati703 manga https://dl.dropboxusercontent.com/s/rrc8b670cpi5rgx/manga.css
+            python mal_synopsis.py ati703 anime https://cdn.jsdelivr.net/gh/lebbenszki/daily@master/new_anime.css
+            python mal_synopsis.py ati703 manga https://cdn.jsdelivr.net/gh/lebbenszki/daily@master/new_manga.css
       - run:
           name: Commit data back to Github
           command: |
