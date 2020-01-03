@@ -5,12 +5,10 @@ def Getfromold(file, empty, ok, newfile):
     url = file
     r = requests.get(url)
     decoded_text = r.content.decode("utf-8", "ignore")
-    data_list = decoded_text.split("\n")
+    data_list = decoded_text.split("\r")
     data_list.pop(0)
     for line in data_list:
-        if line == "":
-            pass
-        else:
+        if line != "":
             str = ""
             for i in line[57:66]:
                 if i.isdigit():
