@@ -1,0 +1,58 @@
+version: 2.1
+
+jobs:
+  update_data:
+    docker:
+      - image: circleci/python:3.6.4
+    steps:
+      - checkout
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "requirements.txt" }}
+            - v1-dependencies-
+      - run:
+          name: Install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
+
+      - run:
+          name: Update data
+          command: |
+            . venv/bin/activate
+            python scripts/update_data.py
+      - run:
+          name: Commit data back to Github
+          command: |
+            git config user.email "ati703@gmail.com"
+            git config user.name "lebbenszki"
+            DATE_TODAY=$(date +"%Y-%m-%d")
+            git pull origin master
+            git commit -am "[skip ci] Updating Data ${DATE_TODAY}" --allow-empty
+            git push origin master
+workflows:
+  daily_data_update:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - update_data
+
+  update_data_on_commit:
+    jobs:
+      - update_data:
+          filters:
+            branches:
+              only:
+                - master
+                
