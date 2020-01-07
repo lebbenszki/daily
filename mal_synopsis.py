@@ -20,6 +20,7 @@ def Getfromold(file, empty, ok, newfile):
                     else:
                         ok.add(int(str))
                         newfile.write(line)
+                        newfile.write("\n")
                     break
 
 def Getlist(type, name, file = "None"):
@@ -41,7 +42,6 @@ def Getlist(type, name, file = "None"):
                 empty.add(i["mal_id"])
     remaining = len(empty)
     print("New entry: ", remaining)
-    print("Remaining time: ", str(datetime.timedelta(seconds = remaining * 1 + pages * 6)))
     for i in empty:
         try:
             if type == "manga":
