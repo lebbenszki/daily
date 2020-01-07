@@ -6,6 +6,7 @@ def Getfromold(file, empty, ok, newfile):
     r = requests.get(url)
     decoded_text = r.content.decode("utf-8", "ignore")
     data_list = decoded_text.split("\r")
+    data_list = data_list[0].split("\n")
     data_list.pop(0)
     for line in data_list:
         if line != "":
