@@ -1,14 +1,11 @@
 import math, time, sys, os.path, datetime, requests
 from jikanpy import Jikan
 
-def Getfromold(file, empty, ok, newfile):
-    url = file
+def getFromExistingUrl(existingDataUrl, newDataSet, existingDataSet, newFile):
+    url = existingDataUrl
     r = requests.get(url)
-    decoded_text = r.content.decode("utf-8", "ignore")
-    data_list = decoded_text.split("\r")
-    data_list = data_list[0].split("\n")
-    data_list.pop(0)
-    for line in data_list:
+    dataList = (r.content.decode("utf-8", "ignore").split("\r"))[0].split("\n")
+    for line in dataList:
         if line != "":
             str = ""
             for i in line[57:66]:
@@ -16,48 +13,47 @@ def Getfromold(file, empty, ok, newfile):
                     str += i
                 elif str != "":
                     if any(word in line for word in ["{content: \'None\'; }", "{content: \'\'; }"]):
-                        empty.add(int(str))
+                        newDataSet.add(int(str))
                     else:
-                        ok.add(int(str))
-                        newfile.write(line)
-                        newfile.write("\n")
+                        existingDataSet.add(int(str))
+                        newFile.write(line)
+                        newFile.write("\n")
                     break
 
-def Getlist(type, name, file = "None"):
-    ok, empty = set(), set()
-    newfile = open("new_" + type + ".css", "w", encoding = "utf-8")
-    user_stats = jikan.user(username = name, request = "profile")
-    time.sleep(10)
-    entry_number = user_stats[type + "_stats"]["total_entries"]
-    print("All entry: ", entry_number)
-    pages = math.ceil(entry_number / 300)
-    print("Sleeping " + str(pages * 10) + " seconds...")
-    if file != "None":
-        Getfromold(file, empty, ok, newfile)
-    for i in range(1, pages + 1):
-        user = jikan.user(username = name, request = type + "list", argument = "all", page = int(i))
+def getList(listType, userName, existingDataUrl = "None"):
+    existingDataSet, newDataSet = set(), set()
+    newFile = open("new_" + listType + ".css", "w", encoding = "utf-8")
+    if existingDataUrl != "None":
+        getFromExistingUrl(existingDataUrl, newDataSet, existingDataSet, newFile)
+    i = 1
+    while True:
+        user = jikan.user(username = userName, request = listType + "list", argument = "all", page = int(i))
+        if len(user[listType]) == 0: break;
+        i += 1
+        print("Sleeping 10 seconds...")
         time.sleep(10)
-        for i in user[type]:
-            if i["mal_id"] not in ok:
-                empty.add(i["mal_id"])
-    remaining = len(empty)
+        for data in user[listType]:
+            if data["mal_id"] not in existingDataSet:
+                newDataSet.add(data["mal_id"])
+    remaining = len(newDataSet)
     print("New entry: ", remaining)
-    for i in empty:
+    for i in newDataSet:
         try:
-            if type == "manga":
+            if listType == "manga":
                 entity = jikan.manga(i)
             else:
                 entity = jikan.anime(i)
             time.sleep(1)
-            newfile.write("\n.list-table .list-table-data .data.image a[href*=\"/" + type + "/" + str(entity["mal_id"]) + "/\"]:after {content: \'" + str(entity["synopsis"]).replace('"', '\\"').replace("'","\\'") + "\'; }")
+            newFile.write("\n.list-table .list-table-data .data.image a[href*=\"/" + listType + "/" + str(entity["mal_id"]) + "/\"]:after {content: \'" + str(entity["synopsis"]).replace('"', '\\"').replace("'","\\'") + "\'; }")
             remaining = remaining - 1
             print("Remaining: ", remaining)
         except Exception as e:
             print(e)
-    newfile.close()
+    newFile.close()
 
-def Argument_check():
+def main():
     if len(sys.argv) == 4:
+        """
         try:
             jikan.user(username = sys.argv[1], request= "profile")
         except Exception as e:
@@ -65,16 +61,14 @@ def Argument_check():
             input("Press Any key to exit...")
             print(e)
             raise SystemExit(5)
-        if sys.argv[2] == "anime" or sys.argv[2] == "manga":
-            pass
-        else:
-            print("list_type should be anime or manga")
+        """
+        if sys.argv[2] != "anime" and sys.argv[2] != "manga":
+            print("listType should be anime or manga")
             input("Press Any key to exit...")
             raise SystemExit(6)
-        print("Sleeping 10 seconds...")
-        time.sleep(10)
-        Getlist(sys.argv[2], sys.argv[1], sys.argv[3])
+        getList(sys.argv[2], sys.argv[1], sys.argv[3])
     elif len(sys.argv) == 3:
+        """
         try:
             jikan.user(username= sys.argv[1], request='profile')
         except Exception as e:
@@ -82,20 +76,17 @@ def Argument_check():
             print(e)
             input("Press Any key to exit...")
             raise SystemExit(5)
-        if sys.argv[2] == "anime" or sys.argv[2] == "manga":
-            pass
-        else:
+        """
+        if sys.argv[2] != "anime" and sys.argv[2] != "manga":
             print("list_type should be anime or manga")
             input("Press Any key to exit...")
             raise SystemExit(6)
-        print("Sleeping 10 seconds...")
-        time.sleep(10)
-        Getlist(sys.argv[2], sys.argv[1])
+        getList(sys.argv[2], sys.argv[1])
     else:
         print("Argument number must be 3 or 2 not ", len(sys.argv)-1)
-        print("Arguments: username list_type:anime/manga old_file(optional)")
+        print("Arguments: userame list_type(anime/manga) old_css(optional)")
         input("Press Any key to exit...")
         raise SystemExit(3)
 
 jikan = Jikan()
-Argument_check()
+main()
