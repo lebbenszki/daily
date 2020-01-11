@@ -27,11 +27,17 @@ def getList(listType, userName, existingDataUrl = "None"):
         getFromExistingUrl(existingDataUrl, newDataSet, existingDataSet, newFile)
     i = 1
     while True:
-        user = jikan.user(username = userName, request = listType + "list", argument = "all", page = int(i))
+        try:
+            user = jikan.user(username = userName, request = listType + "list", argument = "all", page = int(i))
+        except Exception as e:
+            print(e)
+            print("Sleeping 30 seconds...")
+            time.sleep(30)
+            user = jikan.user(username = userName, request = listType + "list", argument = "all", page = int(i))
         if len(user[listType]) == 0: break;
         i += 1
-        print("Sleeping 20 seconds...")
-        time.sleep(20)
+        print("Sleeping 30 seconds...")
+        time.sleep(30)
         for data in user[listType]:
             if data["mal_id"] not in existingDataSet:
                 newDataSet.add(data["mal_id"])
