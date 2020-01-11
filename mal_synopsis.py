@@ -30,8 +30,8 @@ def getList(listType, userName, existingDataUrl = "None"):
         user = jikan.user(username = userName, request = listType + "list", argument = "all", page = int(i))
         if len(user[listType]) == 0: break;
         i += 1
-        print("Sleeping 10 seconds...")
-        time.sleep(10)
+        print("Sleeping 20 seconds...")
+        time.sleep(20)
         for data in user[listType]:
             if data["mal_id"] not in existingDataSet:
                 newDataSet.add(data["mal_id"])
@@ -43,7 +43,7 @@ def getList(listType, userName, existingDataUrl = "None"):
                 entity = jikan.manga(i)
             else:
                 entity = jikan.anime(i)
-            time.sleep(1)
+            time.sleep(2)
             newFile.write("\n.list-table .list-table-data .data.image a[href*=\"/" + listType + "/" + str(entity["mal_id"]) + "/\"]:after {content: \'" + str(entity["synopsis"]).replace('"', '\\"').replace("'","\\'") + "\'; }")
             remaining = remaining - 1
             print("Remaining: ", remaining)
