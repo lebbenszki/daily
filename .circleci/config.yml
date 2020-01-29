@@ -7,7 +7,7 @@ jobs:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "60:de:64:e5:3b:0c:55:71:45:d2:b3:1f:b5:12:c8:36"
+            - "2a:6b:fe:bb:56:d3:fe:13:73:fb:af:04:ff:8c:ba:3a"
       - checkout
       - restore_cache:
           keys:
@@ -32,8 +32,8 @@ jobs:
       - run:
           name: Commit data back to Github
           command: |
-            git config user.email "ati703@gmail.com"
-            git config user.name "lebbenszki"
+            git config user.email "lebbenszki.attila@gmail.com"
+            git config user.name "lebbenszki-bot"
             DATE_TODAY=$(date +"%Y-%m-%d")
             git pull origin master
             git commit -am "[skip ci] Updating Data ${DATE_TODAY}" --allow-empty
