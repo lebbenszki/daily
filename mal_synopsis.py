@@ -31,15 +31,15 @@ def getList(listType, userName, existingDataUrl = "None"):
             user = jikan.user(username = userName, request = listType + "list", argument = "all", page = int(i))
             if len(user[listType]) == 0: break;
             i += 1
-            print("Sleeping 30 seconds...")
-            time.sleep(30)
+            print("Sleeping 60 seconds...")
+            time.sleep(60)
             for data in user[listType]:
                 if data["mal_id"] not in existingDataSet:
                     newDataSet.add(data["mal_id"])
         except Exception as e:
-            print("Error with jikan request, sleeping 30 sec then retry\n")
+            print("Error with jikan request, sleeping 60 sec then retry\n")
             print(e)
-            time.sleep(30)
+            time.sleep(60)
 
     remaining = len(newDataSet)
     print("New entry: ", remaining)
