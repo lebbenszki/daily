@@ -25,6 +25,7 @@ jobs:
           key: v1-dependencies-{{ checksum "requirements.txt" }}
       - run:
           name: Update data
+          no_output_timeout: 60m
           command: |
             . venv/bin/activate
             python mal_synopsis.py --name ati703 --type anime --urlcss https://lebbenszki.github.io/daily/new_anime.css
