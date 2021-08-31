@@ -87,12 +87,18 @@ def parseArgs():
     return args
 
 def checkName(userName):
-    try:
-        jikan.user(username = userName, request = "profile")
-    except Exception as e:
-        print("The name does not exist, please check that you typed it correctly")
-        input("Press Any key to exit...")
-        raise SystemExit(102)
+    while True:
+        try:
+            jikan.user(username = userName, request = "profile")
+            break;
+        except jikanpy.exceptions.APIException as e:
+            print(e)
+            print("Error, retrying in 60 second")
+            time.sleep(60)
+        except Exception as e:
+            print("The name does not exist, please check that you typed it correctly")
+            input("Press Any key to exit...")
+            raise SystemExit(102)
 
 def checkType(listType):
     if listType != "anime" and listType != "manga":
