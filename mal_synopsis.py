@@ -1,5 +1,5 @@
 import math, time, sys, os.path, datetime, requests, argparse, codecs
-from jikanpy import Jikan
+from jikanpy import Jikan, Exceptions
 
 sys.stdout = codecs.getwriter('utf8')(sys.stdout.detach())
 sys.stderr = codecs.getwriter('utf8')(sys.stderr.detach())
@@ -91,7 +91,7 @@ def checkName(userName):
         try:
             jikan.user(username = userName, request = "profile")
             break;
-        except jikanpy.exceptions.APIException as e:
+        except APIException as e:
             print(e)
             print("Error, retrying in 60 second")
             time.sleep(60)
