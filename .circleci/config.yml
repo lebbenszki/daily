@@ -2,6 +2,7 @@ version: 2.1
 
 jobs:
   update_data:
+    circleci_ip_ranges: true
     docker:
       - image: circleci/python:3.6.4
     steps:
