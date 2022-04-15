@@ -30,8 +30,8 @@ jobs:
           no_output_timeout: 60m
           command: |
             . venv/bin/activate
-            python mal_synopsis.py --name ati703 --type anime --urlcss https://lebbenszki.github.io/daily/new_anime.css
-            python mal_synopsis.py --name ati703 --type manga --urlcss https://lebbenszki.github.io/daily/new_manga.css
+            python mal_synopsis.py --name ati703 --type anime --urlcss https://lebbenszki.github.io/daily/new_anime.css --bearer $bearerToken
+            python mal_synopsis.py --name ati703 --type manga --urlcss https://lebbenszki.github.io/daily/new_manga.css --bearer $bearerToken
       - run:
           name: Commit data back to Github
           command: |
@@ -57,6 +57,7 @@ workflows:
   update_data_on_commit:
     jobs:
       - update_data:
+          context: ati703_mal
           filters:
             branches:
               only:

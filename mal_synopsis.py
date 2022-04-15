@@ -18,31 +18,37 @@ def getFromUrl(url, existingDataSet, newDataSet):
                 dataDict[int(malId)] = line
     return dataDict
 
-def getSynopsis(userName, listType, url, file):
+def getSynopsis(userName, listType, url, file, bearerToken):
     existingDataSet, newDataSet = set(), set()
     if url[0] == True:
         dataDict = getFromUrl(url[1], existingDataSet, newDataSet)
-    elif file[0] == True:
-        dataDict = getFromFile(file[1], existingDataSet, newDataSet)
+    #elif file[0] == True:
+        #dataDict = getFromFile(file[1], existingDataSet, newDataSet, bearerToken)
     else:
         dataDict = {}
-    getUserList(userName, listType, existingDataSet, newDataSet)
+    getUserList(userName, listType, existingDataSet, newDataSet, bearerToken)
     appendDictWithNewSynopsis(newDataSet, dataDict, listType)
     return dataDict
 
-def getUserList(userName, listType, existingDataSet, newDataSet):
+def getUserList(userName, listType, existingDataSet, newDataSet, bearerToken):
     i = 1
+    endpoint = "https://api.myanimelist.net/v2/users/" + userName + "/" + listType + "list?limit=1000"
+    header = {"Authorization": bearerToken}
     while True:
         try:
-            user = jikan.user(username = userName, request = listType + "list", argument = "all", page = int(i))
-            if len(user[listType]) == 0: 
-                break;
-            i += 1
-            print("Sleeping 60 second")
-            time.sleep(60)
-            for data in user[listType]:
-                if data["mal_id"] not in existingDataSet:
-                    newDataSet.add(data["mal_id"])
+            response = requests.get(endpoint, headers=header)
+            if response.status_code == requests.codes.unauthorized:
+                print("Reacuthenticate yourself! Refresh the bearer token!")
+                raise SystemError(110)
+            data = response.json()
+            while True:
+                for node in data["data"]:
+                    if node["node"]["id"] not in existingDataSet:
+                        newDataSet.add(node["node"]["id"])
+                if "next" not in data["paging"]:
+                    break;
+                data = requests.get(data["paging"]["next"], headers=header).json()
+            break;
         except Exception as e:
             print(e)
             print("Error, retrying in 60 second")
@@ -83,6 +89,7 @@ def parseArgs():
     parser.add_argument("-t", "--type",     help = "The type of the list, use the anime, manga keywords",   default = "checkIfNoType")
     parser.add_argument("-uc", "--urlcss",  help = "The url address of the css file",                       default = "checkIfNoUrl")
     parser.add_argument("-fc", "--filecss", help = "The absolute path of the css file",                     default = "checkIfNoFile")
+    parser.add_argument("-b", "--bearer",   help = "The bearer token for accessing userlist",               default = "checkIfNoBearer")
     args = parser.parse_args()
     return args
 
@@ -90,7 +97,6 @@ def checkName(userName):
     while True:
         try:
             jikan.user(username = userName, request = "profile")
-            time.sleep(60)
             break;
         except APIException as e:
             print(e)
@@ -134,7 +140,12 @@ def main():
     if urlCss[0] == True and fileCss[0] == True:
         print("Either use urlcss or filecss")
         raise SystemError(104)
-    synopsisDict = getSynopsis(userName, listType, urlCss, fileCss)
+    if args.bearer == "checkIfNoBearer":
+        print("Bearer token is required to get the userlist")
+        raise SystemError(105)
+    else:
+        bearerToken = "Bearer " + args.bearer
+    synopsisDict = getSynopsis(userName, listType, urlCss, fileCss, bearerToken)
     writeOutputFile(synopsisDict, listType)
 
 if __name__ == "__main__":
